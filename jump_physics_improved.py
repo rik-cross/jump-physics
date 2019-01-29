@@ -1,12 +1,10 @@
 # define screen size
 WIDTH = 800
 HEIGHT = 800
-# define some colours
+# define a colour
 MAROON = 128,0,0
 # vertical acceleration
 GRAVITY = 0.2
-# vertical velocity
-JUMPSPEED = -7
 
 # a list of platforms, each is a rectangle
 # in the form ((x,y)(w,h))
@@ -17,13 +15,13 @@ platforms = [
     Rect((600,600),(100,20))
 ]
 
-# create a player with initial speed
+# create a player and define initial vertical velocity
 player = Actor('player',(50,450), anchor=('left','top'))
-player.x_velocity = 2
-player.y_velocity = 0
-# player width and height
 player.w = 20
 player.h = 20
+# define initial and jump velocities
+player.y_velocity = 0
+player.jump_velocity = -7
 
 def update():
 
@@ -36,22 +34,22 @@ def update():
     # calculate new horizontal position if
     # arrow keys are pressed
     if keyboard.left and player.x > 0:
-        newx -= player.x_velocity
+        newx -= 2
     if keyboard.right and player.x < 780:
-        newx += player.x_velocity
+        newx += 2
 
     # create a rectangle for the new x position
     newpositionx = Rect((newx,player.y),(player.w,player.h))
 
     # check whether the new player position
-    # collides with any playform
-    collisionx = False
+    # collides with any platform
+    x_collision = False
     for p in platforms:
-        collisionx = newpositionx.colliderect(p) or collisionx
+        x_collision = newpositionx.colliderect(p) or x_collision
 
     # only allow the player to move if it
     # doesn't collide with any platforms
-    if not collisionx:
+    if not x_collision:
         player.x = newx
 
     #
@@ -70,14 +68,14 @@ def update():
     newplayerpositiony = Rect((player.x,newy),(player.w,player.h))
 
     # check whether the new player position
-    # collides with any playform
-    collisiony = False
+    # collides with any platform
+    y_collision = False
     # also check whether the player is on the ground
     playeronground = False
     # distance from colliding platform (used if on ground)
     ydist = 0
     for p in platforms:
-        collisiony = newplayerpositiony.colliderect(p) or collisiony
+        y_collision = newplayerpositiony.colliderect(p) or y_collision
         # player collided with ground if player's y position is
         # lower than the y position of the platform
         if newplayerpositiony.colliderect(p) and (player.y < p.y):
@@ -87,7 +85,7 @@ def update():
 
     # player no longer has vertical velocity
     # if colliding with a platform
-    if collisiony:
+    if y_collision:
         player.y_velocity = 0
     # only allow the player to move if it
     # doesn't collide with any platforms
@@ -97,7 +95,7 @@ def update():
     # pressing space sets a negative vertical velocity
     # only if player is on the ground
     if keyboard.space and playeronground:
-        player.y_velocity = JUMPSPEED
+        player.y_velocity = player.jump_velocity
 
 def draw():
 
